@@ -40,13 +40,8 @@
   }
   h1 {
     font-size: 1.25rem;
-    margin: 0 0 0.25rem;
-    color: var(--uo-green);
-  }
-  .subtitle {
     margin: 0 0 1rem;
-    font-size: 0.95rem;
-    color: #40514a;
+    color: var(--uo-green);
   }
   label {
     display: block;
@@ -81,7 +76,7 @@
     flex-wrap: wrap;
     gap: 0.6rem;
     align-items: flex-end;
-    margin-bottom: 1rem;
+    margin-bottom: 0.35rem;
   }
   button {
     font: inherit;
@@ -101,9 +96,6 @@
     color: var(--uo-green);
   }
   button.secondary:hover { background: var(--note-bg); }
-  .url-box {
-    margin: 0 0 0.75rem;
-  }
   #primoUrl {
     width: 100%;
     font-family: Consolas, "Courier New", monospace;
@@ -111,35 +103,41 @@
     padding: 0.5rem;
     border: 1px solid var(--field-border);
     border-radius: 4px;
-    background: var(--note-bg);
+    background: #fff;
     text-transform: none;
     letter-spacing: 0;
+    margin: 0.5rem 0 0.25rem;
   }
   #status {
     min-height: 1.4rem;
     font-weight: 600;
     color: var(--uo-green);
+    margin: 0 0 0.25rem;
   }
   details {
-    margin-top: 1rem;
+    margin-top: 0.4rem;
     border: 1px solid #c8d4cd;
     border-radius: 4px;
     background: var(--note-bg);
-    padding: 0.5rem 0.9rem;
+    padding: 0.25rem 0.75rem;
+  }
+  #beforeSection {
+    margin: 0 0 0.9rem;
   }
   summary {
     cursor: pointer;
     font-weight: 600;
     color: var(--uo-green);
-    padding: 0.25rem 0;
+    padding: 0.15rem 0;
   }
   details ol { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
   details li { margin-bottom: 0.4rem; }
+  details p { margin: 0.5rem 0; }
   .callout {
     border-left: 4px solid var(--uo-yellow);
     background: #fffbe6;
     padding: 0.6rem 0.9rem;
-    margin: 0.75rem 0 0;
+    margin: 0.5rem 0;
     font-size: 0.95rem;
   }
   code { font-family: Consolas, "Courier New", monospace; background: #e8efeb; }
@@ -148,35 +146,37 @@
 <body>
 <div class="tool">
   <h1>CDI DBID → Primo Results Lookup</h1>
-  <p class="subtitle">View records for CDI collections marked “Link in Record.” Paste the DBID from the collection’s CDI tab in Alma and open the matching records in LibrarySearch.</p>
 
-  <div class="callout" role="note">
-    <strong>Before you start:</strong> if the collection is set to <em>Search Rights in CDI: Subscription</em>, sign in to LibrarySearch first or the search may return no results.
-  </div>
-
-  <p></p>
+  <details id="beforeSection">
+    <summary>Before you start</summary>
+    <p>This tool helps you view records for CDI collections marked <strong>“Link in Record.”</strong> Paste the DBID from the collection’s CDI tab in Alma and open the matching records in LibrarySearch.</p>
+    <div class="callout" role="note">
+      If the collection is set to <em>Search Rights in CDI: Subscription</em>, sign in to LibrarySearch first or the search may return no results.
+    </div>
+  </details>
 
   <label for="dbid">CDI collection DBID
-    <span class="hint">(example: JDOTS for ARTstor US only)</span>
+    <span class="hint">(example: JFNAL for JSTOR Journals Open Access)</span>
   </label>
   <div class="row">
     <input type="text" id="dbid" name="dbid" autocomplete="off"
-           spellcheck="false" placeholder="JDOTS"
+           spellcheck="false" placeholder="JFNAL"
            aria-describedby="status">
     <button type="button" class="primary" id="openBtn">Open Primo results</button>
     <button type="button" class="secondary" id="copyBtn">Copy URL</button>
     <button type="button" class="secondary" id="clearBtn">Clear</button>
   </div>
 
-  <div class="url-box">
-    <label for="primoUrl">Primo search URL</label>
-    <input type="text" id="primoUrl" readonly
-           value="Enter a DBID above to build the URL">
-  </div>
-
   <p id="status" role="status" aria-live="polite"></p>
 
-  <details>
+  <details id="urlSection">
+    <summary>Primo search URL</summary>
+    <label for="primoUrl" class="hint" style="margin-top:0.5rem;">The URL this tool opens — updates as you type</label>
+    <input type="text" id="primoUrl" readonly
+           value="Enter a DBID above to build the URL">
+  </details>
+
+  <details id="howToSection">
     <summary>How to check the results</summary>
     <ol>
       <li>In Alma, open the collection’s <strong>CDI</strong> tab and copy the <strong>DBID</strong>.</li>
@@ -192,22 +192,22 @@
   "use strict";
 
   /* =========================================================
-     CONFIGURATION — verify these against a real results URL.
-     Run any search in LibrarySearch and compare the query
-     string; adjust TAB and SEARCH_SCOPE if UO uses custom
-     slot codes for the "everything" scope.
+     CONFIGURATION — verified against a real LibrarySearch
+     results URL on 2026-07-08 (UO uses custom slot codes:
+     tab=Rollup, search_scope=Everything).
      ========================================================= */
   var BASE_URL     = "https://alliance-uoregon.primo.exlibrisgroup.com/discovery/search";
   var VID          = "01ALLIANCE_UO:UO";
-  var TAB          = "Everything";
-  var SEARCH_SCOPE = "MyInst_and_CI";
+  var TAB          = "Rollup";
+  var SEARCH_SCOPE = "Everything";
 
-  var dbidInput = document.getElementById("dbid");
-  var urlField  = document.getElementById("primoUrl");
-  var status    = document.getElementById("status");
-  var openBtn   = document.getElementById("openBtn");
-  var copyBtn   = document.getElementById("copyBtn");
-  var clearBtn  = document.getElementById("clearBtn");
+  var dbidInput  = document.getElementById("dbid");
+  var urlField   = document.getElementById("primoUrl");
+  var urlSection = document.getElementById("urlSection");
+  var status     = document.getElementById("status");
+  var openBtn    = document.getElementById("openBtn");
+  var copyBtn    = document.getElementById("copyBtn");
+  var clearBtn   = document.getElementById("clearBtn");
 
   function cleanDbid() {
     return dbidInput.value.replace(/\s+/g, "").toUpperCase();
@@ -256,6 +256,8 @@
     }
     var url = buildUrl(dbid);
     function fallbackCopy() {
+      /* The URL field must be visible to select it, so open its section. */
+      urlSection.open = true;
       urlField.focus();
       urlField.select();
       try {
