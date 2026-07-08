@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CDI DBID → Primo Results Lookup</title>
+<style>
+  /* ======================================================================
+     CDI DBID → Primo lookup — UO Libraries staff tool
+     Accessibility: full keyboard operability, visible focus, real buttons
+     with visible text labels (Dragon NaturallySpeaking: "click open primo
+     results", "click copy url", etc.)
+     ====================================================================== */
+  :root {
+    --uo-green: #154733;
+    --uo-green-dark: #0d2f22;
+    --uo-yellow: #fee123;
+    --ink: #1f2a24;
+    --paper: #ffffff;
+    --field-border: #6b7f75;
+    --note-bg: #f2f6f3;
+    --focus: #0b57d0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    margin: 0;
+    padding: 1rem;
+    line-height: 1.5;
+  }
+  .tool {
+    max-width: 46rem;
+    margin: 0 auto;
+    border: 1px solid var(--uo-green);
+    border-top: 6px solid var(--uo-green);
+    border-radius: 6px;
+    padding: 1.25rem 1.5rem 1.5rem;
+  }
+  h1 {
+    font-size: 1.25rem;
+    margin: 0 0 0.25rem;
+    color: var(--uo-green);
+  }
+  .subtitle {
+    margin: 0 0 1rem;
+    font-size: 0.95rem;
+    color: #40514a;
+  }
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }
+  .hint {
+    font-weight: 400;
+    font-size: 0.875rem;
+    color: #40514a;
+  }
+  input[type="text"] {
+    font-size: 1.15rem;
+    font-family: Consolas, "Courier New", monospace;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.65rem;
+    border: 2px solid var(--field-border);
+    border-radius: 4px;
+    width: 14rem;
+    max-width: 100%;
+    text-transform: uppercase;
+  }
+  input[type="text"]:focus,
+  button:focus,
+  a:focus,
+  summary:focus {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    align-items: flex-end;
+    margin-bottom: 1rem;
+  }
+  button {
+    font: inherit;
+    font-weight: 600;
+    padding: 0.55rem 1rem;
+    border-radius: 4px;
+    border: 2px solid var(--uo-green);
+    cursor: pointer;
+  }
+  button.primary {
+    background: var(--uo-green);
+    color: #fff;
+  }
+  button.primary:hover { background: var(--uo-green-dark); }
+  button.secondary {
+    background: #fff;
+    color: var(--uo-green);
+  }
+  button.secondary:hover { background: var(--note-bg); }
+  .url-box {
+    margin: 0 0 0.75rem;
+  }
+  #primoUrl {
+    width: 100%;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 0.85rem;
+    padding: 0.5rem;
+    border: 1px solid var(--field-border);
+    border-radius: 4px;
+    background: var(--note-bg);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  #status {
+    min-height: 1.4rem;
+    font-weight: 600;
+    color: var(--uo-green);
+  }
+  details {
+    margin-top: 1rem;
+    border: 1px solid #c8d4cd;
+    border-radius: 4px;
+    background: var(--note-bg);
+    padding: 0.5rem 0.9rem;
+  }
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--uo-green);
+    padding: 0.25rem 0;
+  }
+  details ol { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  details li { margin-bottom: 0.4rem; }
+  .callout {
+    border-left: 4px solid var(--uo-yellow);
+    background: #fffbe6;
+    padding: 0.6rem 0.9rem;
+    margin: 0.75rem 0 0;
+    font-size: 0.95rem;
+  }
+  code { font-family: Consolas, "Courier New", monospace; background: #e8efeb; }
+</style>
+</head>
+<body>
+<div class="tool">
+  <h1>CDI DBID → Primo Results Lookup</h1>
+  <p class="subtitle">View records for CDI collections marked “Link in Record.” Paste the DBID from the collection’s CDI tab in Alma and open the matching records in LibrarySearch.</p>
+
+  <div class="callout" role="note">
+    <strong>Before you start:</strong> if the collection is set to <em>Search Rights in CDI: Subscription</em>, sign in to LibrarySearch first or the search may return no results.
+  </div>
+
+  <p></p>
+
+  <label for="dbid">CDI collection DBID
+    <span class="hint">(example: JDOTS for ARTstor US only)</span>
+  </label>
+  <div class="row">
+    <input type="text" id="dbid" name="dbid" autocomplete="off"
+           spellcheck="false" placeholder="JDOTS"
+           aria-describedby="status">
+    <button type="button" class="primary" id="openBtn">Open Primo results</button>
+    <button type="button" class="secondary" id="copyBtn">Copy URL</button>
+    <button type="button" class="secondary" id="clearBtn">Clear</button>
+  </div>
+
+  <div class="url-box">
+    <label for="primoUrl">Primo search URL</label>
+    <input type="text" id="primoUrl" readonly
+           value="Enter a DBID above to build the URL">
+  </div>
+
+  <p id="status" role="status" aria-live="polite"></p>
+
+  <details>
+    <summary>How to check the results</summary>
+    <ol>
+      <li>In Alma, open the collection’s <strong>CDI</strong> tab and copy the <strong>DBID</strong>.</li>
+      <li>Paste the DBID above and choose <strong>Open Primo results</strong>. The search runs as <code>DBID,contains,&lt;DBID&gt;</code>.</li>
+      <li>The number of results should roughly match the <strong>Number of records</strong> shown in the collection’s CDI settings.</li>
+      <li>If the search returns no results, sign out of LibrarySearch, sign back in, and try again.</li>
+    </ol>
+  </details>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* =========================================================
+     CONFIGURATION — verify these against a real results URL.
+     Run any search in LibrarySearch and compare the query
+     string; adjust TAB and SEARCH_SCOPE if UO uses custom
+     slot codes for the "everything" scope.
+     ========================================================= */
+  var BASE_URL     = "https://alliance-uoregon.primo.exlibrisgroup.com/discovery/search";
+  var VID          = "01ALLIANCE_UO:UO";
+  var TAB          = "Everything";
+  var SEARCH_SCOPE = "MyInst_and_CI";
+
+  var dbidInput = document.getElementById("dbid");
+  var urlField  = document.getElementById("primoUrl");
+  var status    = document.getElementById("status");
+  var openBtn   = document.getElementById("openBtn");
+  var copyBtn   = document.getElementById("copyBtn");
+  var clearBtn  = document.getElementById("clearBtn");
+
+  function cleanDbid() {
+    return dbidInput.value.replace(/\s+/g, "").toUpperCase();
+  }
+
+  function buildUrl(dbid) {
+    return BASE_URL +
+      "?query=" + encodeURIComponent("DBID,contains," + dbid) +
+      "&tab=" + encodeURIComponent(TAB) +
+      "&search_scope=" + encodeURIComponent(SEARCH_SCOPE) +
+      "&vid=" + encodeURIComponent(VID) +
+      "&offset=0";
+  }
+
+  function refreshUrl() {
+    var dbid = cleanDbid();
+    if (dbid) {
+      urlField.value = buildUrl(dbid);
+    } else {
+      urlField.value = "Enter a DBID above to build the URL";
+    }
+    return dbid;
+  }
+
+  function announce(msg) {
+    status.textContent = msg;
+  }
+
+  function openResults() {
+    var dbid = refreshUrl();
+    if (!dbid) {
+      announce("Enter a DBID first.");
+      dbidInput.focus();
+      return;
+    }
+    window.open(buildUrl(dbid), "_blank", "noopener");
+    announce("Opened Primo results for " + dbid + " in a new tab.");
+  }
+
+  function copyUrl() {
+    var dbid = refreshUrl();
+    if (!dbid) {
+      announce("Enter a DBID first.");
+      dbidInput.focus();
+      return;
+    }
+    var url = buildUrl(dbid);
+    function fallbackCopy() {
+      urlField.focus();
+      urlField.select();
+      try {
+        document.execCommand("copy");
+        announce("URL copied to clipboard.");
+      } catch (e) {
+        announce("Copy failed — the URL is selected; press Ctrl+C.");
+      }
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function () {
+        announce("URL copied to clipboard.");
+      }, fallbackCopy);
+    } else {
+      fallbackCopy();
+    }
+  }
+
+  function clearAll() {
+    dbidInput.value = "";
+    refreshUrl();
+    announce("Cleared.");
+    dbidInput.focus();
+  }
+
+  dbidInput.addEventListener("input", refreshUrl);
+  dbidInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      openResults();
+    }
+  });
+  openBtn.addEventListener("click", openResults);
+  copyBtn.addEventListener("click", copyUrl);
+  clearBtn.addEventListener("click", clearAll);
+})();
+</script>
+</body>
+</html>
