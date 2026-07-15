@@ -229,14 +229,27 @@
 
   /* Single DBID → "JFNAL"; several → "(IAO OR AHNUU)" —
      the Boolean OR form documented by Ex Libris for Alma
-     collections that map to multiple CDI collections. */
+     collections that map to multiple CDI collections.
+     Used for status announcements (display form). */
   function dbidExpression(dbids) {
     return dbids.length === 1 ? dbids[0] : "(" + dbids.join(" OR ") + ")";
   }
 
+  /* URL form of the query segment. Commas are left LITERAL and
+     spaces become %20, matching the format Ex Libris documents
+     and Primo VE generates itself:
+       query=DBID,contains,(IAO%20OR%20AHNUU)
+     Only the DBID values themselves are percent-encoded. */
+  function queryExpression(dbids) {
+    var encoded = dbids.map(encodeURIComponent);
+    return dbids.length === 1
+      ? encoded[0]
+      : "(" + encoded.join("%20OR%20") + ")";
+  }
+
   function buildUrl(dbids) {
     return BASE_URL +
-      "?query=" + encodeURIComponent("DBID,contains," + dbidExpression(dbids)) +
+      "?query=DBID,contains," + queryExpression(dbids) +
       "&tab=" + encodeURIComponent(TAB) +
       "&search_scope=" + encodeURIComponent(SEARCH_SCOPE) +
       "&vid=" + encodeURIComponent(VID) +
