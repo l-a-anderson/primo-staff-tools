@@ -6,7 +6,7 @@
 <title>CDI DBID → Primo Results Lookup</title>
 <style>
   /* ======================================================================
-     CDI DBID → Primo lookup — UO Libraries staff tool
+     CDI DBID → Primo lookup: UO Libraries staff tool
      Accessibility: full keyboard operability, visible focus, real buttons
      with visible text labels (Dragon NaturallySpeaking: "click open primo
      results", "click copy url", etc.)
@@ -157,7 +157,7 @@
   </details>
 
   <label for="dbid">CDI collection DBID
-    <span class="hint">(example: JFNAL for JSTOR Journals Open Access &mdash; if a collection lists multiple DBIDs, paste them all, comma-separated)</span>
+    <span class="hint">(example: JFNAL for JSTOR Journals Open Access; if a collection lists multiple DBIDs, paste them all, comma-separated)</span>
   </label>
   <div class="row">
     <input type="text" id="dbid" name="dbid" autocomplete="off"
@@ -172,7 +172,7 @@
 
   <details id="urlSection">
     <summary>Primo search URL</summary>
-    <label for="primoUrl" class="hint" style="margin-top:0.5rem;">The URL this tool opens — updates as you type</label>
+    <label for="primoUrl" class="hint" style="margin-top:0.5rem;">The URL this tool opens (updates as you type)</label>
     <input type="text" id="primoUrl" readonly
            value="Enter a DBID above to build the URL">
   </details>
@@ -181,13 +181,13 @@
     <summary>How to check the results</summary>
     <ol>
       <li>In Alma, open the collection’s <strong>CDI</strong> tab and copy the <strong>DBID</strong>. If more than one DBID is listed (e.g. <code>IAO,AHNUU</code>), copy them all, commas included.</li>
-      <li>Paste above and choose <strong>Open Primo results</strong>. The search runs as <code>DBID,contains,JFNAL</code> &mdash; the word &ldquo;DBID&rdquo; is Primo’s search field name and never changes; only your collection code after &ldquo;contains&rdquo; does. Multiple DBIDs are combined as <code>DBID,contains,(IAO OR AHNUU)</code>.</li>
-      <li>Don’t expect the result count to match the <strong>Number of records</strong> in the collection’s CDI settings &mdash; Ex Libris notes that DBID searches on large collections return partial results (a server time-out truncates them), and Primo merges duplicate records and filters by our subscriptions. What matters: results exist, and spot-checked records are actually from this collection.</li>
-      <li>Zero results for a collection that should have many is the signal worth investigating &mdash; first sign in to LibrarySearch (or sign out and back in) and try again.</li>
+      <li>Paste above and choose <strong>Open Primo results</strong>. The search runs as <code>DBID,contains,JFNAL</code>. The word &ldquo;DBID&rdquo; is Primo’s search field name and never changes; only your collection code after &ldquo;contains&rdquo; does. Multiple DBIDs are combined as <code>DBID,contains,(IAO OR AHNUU)</code>.</li>
+      <li>Don’t expect the result count to match the <strong>Number of records</strong> in the collection’s CDI settings exactly. Ex Libris notes that DBID searches on large collections return partial results (a server time-out truncates them), and Primo merges duplicate records and filters by our subscriptions. What matters: results exist, and spot-checked records are actually from this collection.</li>
+      <li>Zero results for a collection that should have many is the signal worth investigating: first sign in to LibrarySearch (or sign out and back in) and try again.</li>
     </ol>
     <p><strong>Special cases</strong></p>
     <ul>
-      <li>Some collections (Web of Science, ABI/INFORM, DOAJ, and others) are <em>grouped</em> in CDI and only findable by group name, such as <code>GROUPED_DOAJ</code> &mdash; their individual DBIDs return nothing.</li>
+      <li>Some collections (Web of Science, ABI/INFORM, DOAJ, and others) are <em>grouped</em> in CDI and only findable by group name, such as <code>GROUPED_DOAJ</code>; their individual DBIDs return nothing.</li>
       <li>DBIDs are case-sensitive. The tool capitalizes automatically, which matches standard DBIDs (including group names).</li>
     </ul>
     <p>Source: <a href="https://knowledge.exlibrisgroup.com/Primo/Content_Corner/Central_Discovery_Index/Documentation_and_Training/Documentation_and_Training_(English)/CDI_-_The_Central_Discovery_Index/090CDI_Tips_and_Tricks"
@@ -200,7 +200,7 @@
   "use strict";
 
   /* =========================================================
-     CONFIGURATION — verified against a real LibrarySearch
+     CONFIGURATION: verified against a real LibrarySearch
      results URL on 2026-07-08 (UO uses custom slot codes:
      tab=Rollup, search_scope=Everything).
      ========================================================= */
@@ -227,7 +227,7 @@
       .filter(function (s) { return s.length > 0; });
   }
 
-  /* Single DBID → "JFNAL"; several → "(IAO OR AHNUU)" —
+  /* Single DBID → "JFNAL"; several → "(IAO OR AHNUU)":
      the Boolean OR form documented by Ex Libris for Alma
      collections that map to multiple CDI collections.
      Used for status announcements (display form). */
@@ -285,7 +285,7 @@
       announce("Opened Primo results for " + dbidExpression(dbids) + " in a new tab.");
     } else {
       urlSection.open = true;
-      announce("Couldn't open a new tab here — use Copy URL and open it manually.");
+      announce("Couldn't open a new tab here. Use Copy URL and open it manually.");
     }
   }
 
@@ -306,7 +306,7 @@
         document.execCommand("copy");
         announce("URL copied to clipboard.");
       } catch (e) {
-        announce("Copy failed — the URL is selected; press Ctrl+C.");
+        announce("Copy failed. The URL is selected; press Ctrl+C.");
       }
     }
     if (navigator.clipboard && navigator.clipboard.writeText) {
